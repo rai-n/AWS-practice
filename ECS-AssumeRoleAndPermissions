@@ -1,3 +1,25 @@
+# the UserData property of the EC2Instance resource contains a script that updates the /etc/ecs/ecs.config file with the value of the ClusterName parameter. 
+#The Fn::Base64 and !Sub functions are used to encode the script and substitute the value of the ClusterName parameter into the script. 
+# When the EC2 instance is launched, this script will be executed, and the /etc/ecs/ecs.config file will be updated with the correct cluster name
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      # ...
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          echo ECS_CLUSTER=${ClusterName} >> /etc/ecs/ecs.config
+          # ...
+Parameters:
+  ClusterName:
+    Type: String
+    Description: The name of the ECS cluster to register the container instance with.
+
+# ...
+
+
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'AWS CloudFormation template to create an Amazon ECS cluster and an Auto Scaling group of EC2 instances registered with the specified cluster.'
 
@@ -65,4 +87,3 @@ Outputs:
   ClusterName:
     Description: 'The name of the Amazon ECS cluster.'
     Value: !Ref ECSCluster
-
